@@ -8,6 +8,9 @@
             "email": "alcimar@usinahub.com"
         }
     ],
+    "type": "laravel-bundle",
+    "prefer-stable": true,
+    "minimum-stability": "dev",
     "require": {},
     "autoload": {
         "psr-4": {
