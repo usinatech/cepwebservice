@@ -1,0 +1,24 @@
+{
+    "name": "usinahub/cepwebservice",
+    "description": "CEP Webservice API REST Laravel Package",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alcimar Carlos de Lemos Vasconcelos e Aires",
+            "email": "alcimar@usinahub.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "UsinaHUB\\CEPWebservice\\":"src/"
+        }
+    },
+    "extra": {
+        "laravel":{
+            "providers":[
+                "UsinaHUB\\CEPWebservice\\CEPWebserviceServiceProvider"
+            ]
+        }
+    }
+}
