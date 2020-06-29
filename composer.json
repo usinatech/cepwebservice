@@ -1,5 +1,9 @@
 {
     "name": "usinahub/cepwebservice",
+    "repositories":{
+        "url":"https://github.com/UsinaHUB/CEPWebservice.git",
+        "type":"git"
+    },
     "description": "CEP Webservice API REST Laravel Package",
     "license": "MIT",
     "authors": [
@@ -9,9 +13,15 @@
         }
     ],
     "type": "laravel-bundle",
-    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
+    },
     "minimum-stability": "dev",
-    "require": {},
+    "prefer-stable": true,
+    "require": {
+        "php": "^7.2",
+        "laravel/framework": "~5.8.0|^6.0|^7.0"
+    },
     "autoload": {
         "psr-4": {
             "UsinaHUB\\CEPWebservice\\":"src/"
