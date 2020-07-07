@@ -46,7 +46,7 @@ Retorno:
     }
 ]
 ``` 
-Dentro da página do seu projeto:
+Dentro da pasta do seu projeto:
 ```  
 cp vendor/usinahub/cepwebservice/database/cepwebservice.sqlite.zip database/
 cd database/
