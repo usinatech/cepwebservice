@@ -8,7 +8,7 @@ Acrescente em seu arquivo *.env* a variável de ambiemte abaixo:
 **SQLITE_DB_DATABASE="../database/cepwebservice.sqlite"**
 
 Editar o trecho do arquivo *config/database.php*:  
-'sqlite' => [
+'sqlite' => [  
             'driver' => 'sqlite',  
             'url' => env('DATABASE_URL'),  
             **'database' => env('DB_DATABASE', database_path('database.sqlite')),**  
@@ -17,7 +17,7 @@ Editar o trecho do arquivo *config/database.php*:
         ],  
 
 Para:  
-        'sqlite' => [
+        'sqlite' => [  
             'driver' => 'sqlite',  
             'url' => env('SQLITE_DATABASE_URL'),  
             **'database' => env('SQLITE_DB_DATABASE'),**  
