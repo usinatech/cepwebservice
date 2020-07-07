@@ -27,3 +27,22 @@ Para:
               'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),  
    ],  
 ``` 
+##Usando a API
+Exemplo de Chamada:  
+```       
+curl --location --request GET 'http://localhost:8000/cepwebservice/cep/51110000' 
+``` 
+Retorno:  
+```       
+[
+    {
+        "cep": "51110000",
+        "logradouro": "Avenida Antônio de Góes",
+        "bairro": "Pina",
+        "cidade": "Recife",
+        "estado": "PE",
+        "latitude": "-8.0851919",
+        "longitude": "-34.8869746"
+    }
+]
+``` 
