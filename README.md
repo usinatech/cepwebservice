@@ -52,3 +52,8 @@ cp vendor/usinahub/cepwebservice/database/cepwebservice.sqlite.zip database/
 cd database/
 unzip cepwebservice.sqlite.zip 
 ```
+
+Se desejar usar o método para busca complementar de latitude e longitude no Google Maps, incluir a chave no seu arquivo .env
+```  
+GOOGLE_MAPS_API_KEY=
+```
