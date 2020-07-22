@@ -46,3 +46,9 @@ Retorno:
     }
 ]
 ``` 
+Dentro da pasta do seu projeto:
+```  
+cp vendor/usinahub/cepwebservice/database/cepwebservice.sqlite.zip database/
+cd database/
+unzip cepwebservice.sqlite.zip 
+```
