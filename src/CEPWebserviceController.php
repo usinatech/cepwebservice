@@ -3,13 +3,14 @@
 namespace UsinaHUB\CEPWebservice;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class CEPWebserviceController extends Controller
 {
     public function cep(Request $request, $cep) {
         
-        $db = \DB::connection('sqlite');
+        $db = DB::connection('sqlite');
 
         $cep =$db->table('log')
         ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
@@ -28,7 +29,7 @@ class CEPWebserviceController extends Controller
 
     public function search($q) 
     {
-        $db = \DB::connection('sqlite');
+        $db = DB::connection('sqlite');
 
         $logradouro = $db->table('log')
         ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
@@ -54,7 +55,7 @@ class CEPWebserviceController extends Controller
         $latitude=$latlngArray[0];
         $longitude=$latlngArray[1];
 
-        $db = \DB::connection('sqlite');
+        $db = DB::connection('sqlite');
 
         $cep = $db->table('log')
         ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
