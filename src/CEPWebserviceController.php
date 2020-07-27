@@ -112,6 +112,8 @@ class CEPWebserviceController extends Controller
         $latitude=$latlngArray[0];
         $longitude=$latlngArray[1];
 
+        $db = DB::connection('sqlite');
+
         $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=".$latitude.",".$longitude."&location_type=ROOFTOP&result_type=street_address&key=".env('GOOGLE_MAPS_API_KEY');
 
         $ch = curl_init();
@@ -139,7 +141,7 @@ class CEPWebserviceController extends Controller
             $response['maps']="https://www.google.com/maps/search/".$response['latitude'].",".$response['longitude'];
             
             
-            $response['updated'] = DB::table('log')
+            $response['updated'] = $db->table('log')
               ->where('cep', $response['cep'])
               ->where('logradouro', $response['logradouro'])
               ->update(['latitude' => $response['latitude'], 'longitude' => $response['longitude'] ]);
