@@ -62,7 +62,7 @@ class CEPWebserviceController extends Controller
         ->join('cidade', 'cidade.id', '=', 'log.cidade_id')
         ->select('log.cep','log.logradouro','bairro.bairro','cidade.cidade',
         'log.estado','log.latitude','log.longitude',
-         DB::raw(" 'https://www.google.com/maps/search/' || log.latitude || ',' || log.longitude AS maps")
+         DB::raw(" 'https://www.google.com/maps/search/' || log.latitude || ',' || log.longitude AS maps"),
          DB::raw("( 637100 * acos( cos( radians($latitude) ) *
         cos( radians( log.latitude ) )
         * cos( radians( log.longitude ) - radians($longitude)
