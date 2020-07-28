@@ -48,7 +48,7 @@ class CEPWebserviceController extends Controller
 
     public function latlng($latlng) 
     {
-        $radius=200;
+        $radius=20;
 
         $latlngArray=explode(',',$latlng);
 
@@ -56,27 +56,32 @@ class CEPWebserviceController extends Controller
         $longitude=$latlngArray[1];
 
         $db = DB::connection('sqlite');
+        
+        DB::connection('sqlite')->getPdo()->sqliteCreateFunction('ACOS', 'acos', 1);
+        DB::connection('sqlite')->getPdo()->sqliteCreateFunction('COS', 'cos', 1);
+        DB::connection('sqlite')->getPdo()->sqliteCreateFunction('RADIANS', 'deg2rad', 1);
+        DB::connection('sqlite')->getPdo()->sqliteCreateFunction('SIN', 'sin', 1);
 
         $cep = $db->table('log')
         ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
         ->join('cidade', 'cidade.id', '=', 'log.cidade_id')
-        ->select('log.cep','log.logradouro','bairro.bairro','cidade.cidade',
-        'log.estado','log.latitude','log.longitude',
+        ->select('log.cep','log.logradouro','bairro.bairro','cidade.cidade','log.estado','log.latitude','log.longitude',
          DB::raw(" 'https://www.google.com/maps/search/' || log.latitude || ',' || log.longitude AS maps"),
-         DB::raw("( 637100 * acos( cos( radians($latitude) ) *
-        cos( radians( log.latitude ) )
-        * cos( radians( log.longitude ) - radians($longitude)
-        ) + sin( radians($latitude) ) *
-        sin( radians( log.latitude ) ) )
-        ) AS distancia")
-        )
-        ->having("distancia", "<", $radius)
-        ->orderBy('distancia','asc')
+         DB::raw("( 637100 * ACOS( COS( radians($latitude) ) *
+         COS( RADIANS( log.latitude ) )
+         * COS( RADIANS( log.longitude ) - RADIANS($longitude)
+         ) + SIN( RADIANS($latitude) ) *
+         SIN( RADIANS( log.latitude ) ) )
+         ) AS distancia")
+         )
+        ->where("distancia", "<", $radius)
+        ->orderBy('distancia','ASC')
         ->limit(20)
         ->get();
-        
+
+
         return response($cep,200);
-    }    
+    }
 
     public function slatlng($latlng) 
     {
