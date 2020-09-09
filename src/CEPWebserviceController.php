@@ -1,6 +1,6 @@
 <?php
 
-namespace UsinaHUB\CEPWebservice;
+namespace UsinaTech\CEPWebservice;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

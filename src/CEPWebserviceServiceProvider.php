@@ -1,6 +1,6 @@
 <?php 
 
-namespace UsinaHUB\CEPWebservice;
+namespace UsinaTech\CEPWebservice;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -13,7 +13,7 @@ class CEPWebserviceServiceProvider extends ServiceProvider {
 
     public function register()
     {
-        $this->app->make('UsinaHUB\CEPWebservice\CEPWebserviceController');
+        $this->app->make('UsinaTech\CEPWebservice\CEPWebserviceController');
     }
 
 }
