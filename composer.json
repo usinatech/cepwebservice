@@ -1,14 +1,14 @@
 {
-    "name": "usinahub/cepwebservice",
+    "name": "usinatech/cepwebservice",
     "repositories": {
-        "url": "https://github.com/UsinaHUB/CEPWebservice.git",
+        "url": "https://github.com/UsinaTech/CEPWebservice.git",
         "type": "git"
     },
     "description": "CEP Webservice API REST Laravel Package",
     "license": "MIT",
     "authors": [{
         "name": "Alcimar Carlos de Lemos Vasconcelos e Aires",
-        "email": "alcimar@usinahub.com"
+        "email": "alcimar@usina.tech"
     }],
     "type": "laravel-bundle",
     "config": {
@@ -22,13 +22,13 @@
     },
     "autoload": {
         "psr-4": {
-            "UsinaHUB\\CEPWebservice\\": "src/"
+            "UsinaTech\\CEPWebservice\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "UsinaHUB\\CEPWebservice\\CEPWebserviceServiceProvider"
+                "UsinaTech\\CEPWebservice\\CEPWebserviceServiceProvider"
             ]
         }
     }
