@@ -1,4 +1,4 @@
-# CEPWebservice
+# CEP Webservice
 CEP Webservice API REST Laravel Package
 
 Extraia o *database/cepwebservice.sqlite.zip* na pasta do seu projeto:  
