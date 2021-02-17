@@ -3,10 +3,12 @@ CEP Webservice API REST Laravel Package
 
 ``` 
 Execute os comandos abaixo dentro da pasta do seu projeto:
-```  
+
 **composer require usinatech/cepwebservice**
 
 **unzip vendor/usinatech/cepwebservice/database/cepwebservice.sqlite.zip -d database/**
+
+```  
 
 ```
 Acrescente em seu arquivo *.env* a variável de ambiemte abaixo:  
