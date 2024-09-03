@@ -13,7 +13,7 @@ Execute os comandos abaixo dentro da pasta do seu projeto:
 Acrescente em seu arquivo *.env* a variável de ambiemte abaixo:  
 **SQLITE_DB_DATABASE="../database/cepwebservice.sqlite"**
 
-Editar o trecho do arquivo *config/database.php*:  
+Abaixo do trecho do arquivo *config/database.php*:  
 ```
   'sqlite' => [  
               'driver' => 'sqlite',  
@@ -24,9 +24,10 @@ Editar o trecho do arquivo *config/database.php*:
    ],  
 ```
 
-Para:  
+Incluir: 
+
 ```       
-  'sqlite' => [  
+  'sqliteCEPWebservice' => [  
               'driver' => 'sqlite',  
               'url' => env('SQLITE_DATABASE_URL'),  
               'database' => env('SQLITE_DB_DATABASE'),  

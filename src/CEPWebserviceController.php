@@ -10,7 +10,7 @@ class CEPWebserviceController extends Controller
 {
     public function cep(Request $request, $cep) {
         
-        $db = DB::connection('sqlite');
+        $db = DB::connection('sqliteCEPWebservice');
 
         $cep =$db->table('log')
         ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
@@ -29,7 +29,7 @@ class CEPWebserviceController extends Controller
 
     public function search($q) 
     {
-        $db = DB::connection('sqlite');
+        $db = DB::connection('sqliteCEPWebservice');
 
         $logradouro = $db->table('log')
         ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
@@ -55,7 +55,7 @@ class CEPWebserviceController extends Controller
         $latitude=$latlngArray[0];
         $longitude=$latlngArray[1];
 
-        $db = DB::connection('sqlite');
+        $db = DB::connection('sqliteCEPWebservice');
         
         DB::connection('sqlite')->getPdo()->sqliteCreateFunction('ACOS', 'acos', 1);
         DB::connection('sqlite')->getPdo()->sqliteCreateFunction('COS', 'cos', 1);
@@ -117,7 +117,7 @@ class CEPWebserviceController extends Controller
         $latitude=$latlngArray[0];
         $longitude=$latlngArray[1];
 
-        $db = DB::connection('sqlite');
+        $db = DB::connection('sqliteCEPWebservice');
 
         $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=".$latitude.",".$longitude."&location_type=ROOFTOP&result_type=street_address&key=".env('GOOGLE_MAPS_API_KEY');
 
