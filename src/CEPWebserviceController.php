@@ -3,8 +3,8 @@
 namespace UsinaTech\CEPWebservice;
 
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
 
 class CEPWebserviceController extends Controller
 {
