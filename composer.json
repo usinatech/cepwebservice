@@ -1,16 +1,12 @@
 {
     "name": "usinatech/cepwebservice",
-    "repositories": {
-        "url": "https://github.com/UsinaTech/CEPWebservice.git",
-        "type": "git"
-    },
     "description": "CEP Webservice API REST Laravel Package",
     "license": "MIT",
     "authors": [{
         "name": "Alcimar Carlos de Lemos Vasconcelos e Aires",
         "email": "alcimar@usina.tech"
     }],
-    "type": "laravel-bundle",
+    "type": "library",
     "config": {
         "sort-packages": true
     },

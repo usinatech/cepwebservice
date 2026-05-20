@@ -1,10 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 use UsinaTech\CEPWebservice\CEPWebserviceController;
 
-Route::get('/cepwebservice/cep/{cep}', [CEPWebserviceController::class, 'cep']);
-Route::get('/cepwebservice/search/{q}', [CEPWebserviceController::class, 'search']);
-Route::get('/cepwebservice/latlng/{latlng}', [CEPWebserviceController::class, 'latlng']);
-Route::get('/cepwebservice/slatlng/{latlng}', [CEPWebserviceController::class, 'slatlng']);
-Route::get('/cepwebservice/glatlng/{latlng}', [CEPWebserviceController::class, 'glatlng']);
+Route::prefix('cepwebservice')
+    ->name('cepwebservice.')
+    ->group(function (): void {
+        Route::get('/cep/{cep}', [CEPWebserviceController::class, 'cep'])->name('cep');
+        Route::get('/search/{q}', [CEPWebserviceController::class, 'search'])->name('search');
+        Route::get('/latlng/{latlng}', [CEPWebserviceController::class, 'latlng'])->name('latlng');
+        Route::get('/slatlng/{latlng}', [CEPWebserviceController::class, 'slatlng'])->name('slatlng');
+        Route::get('/glatlng/{latlng}', [CEPWebserviceController::class, 'glatlng'])->name('glatlng');
+    });
