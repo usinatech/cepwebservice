@@ -8,6 +8,7 @@ use Illuminate\Database\ConnectionInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
@@ -21,10 +22,25 @@ class CEPWebserviceController extends Controller
             return $this->validationError('CEP inválido. Informe um CEP com 8 dígitos.');
         }
 
-        $result = $this->baseAddressQuery()
-            ->where('log.cep', $normalizedCep)
-            ->limit(1)
-            ->get();
+        $cacheEnabled = (bool) config('cepwebservice.cache.enabled', true);
+        $cacheTtl = (int) config('cepwebservice.cache.ttl', 86400);
+        $cacheKey = 'cepwebservice:cep:' . $normalizedCep;
+
+        if ($cacheEnabled) {
+            $result = Cache::remember($cacheKey, $cacheTtl, function () use ($normalizedCep) {
+                return $this->baseAddressQuery()
+                    ->where('log.cep', $normalizedCep)
+                    ->limit(1)
+                    ->get()
+                    ->toArray();
+            });
+            $result = collect($result);
+        } else {
+            $result = $this->baseAddressQuery()
+                ->where('log.cep', $normalizedCep)
+                ->limit(1)
+                ->get();
+        }
 
         if ($result->isEmpty()) {
             return $this->notFound('CEP não encontrado.');
@@ -41,25 +57,58 @@ class CEPWebserviceController extends Controller
             return $this->validationError('Informe pelo menos 3 caracteres para a busca.');
         }
 
-        $logradouro = $this->connection()
-            ->table('log')
-            ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
-            ->join('cidade', 'cidade.id', '=', 'log.cidade_id')
-            ->leftJoin('log_complemento', 'log_complemento.cep', '=', 'log.cep')
-            ->select(
-                'log.cep',
-                'log.logradouro',
-                'bairro.bairro',
-                'cidade.cidade',
-                'log.estado',
-                'log_complemento.complemento',
-                'log.latitude',
-                'log.longitude'
-            )
-            ->selectRaw("'https://www.google.com/maps/search/' || log.latitude || ',' || log.longitude AS maps")
-            ->where('log.logradouro', 'LIKE', '%' . $term . '%')
-            ->limit($this->resultLimit())
-            ->get();
+        if (mb_strlen($term) > 100) {
+            return $this->validationError('O termo de busca deve ter no máximo 100 caracteres.');
+        }
+
+        $cacheEnabled = (bool) config('cepwebservice.cache.enabled', true);
+        $cacheTtl = (int) config('cepwebservice.cache.ttl', 86400);
+        $cacheKey = 'cepwebservice:search:' . md5($term);
+
+        if ($cacheEnabled) {
+            $logradouro = Cache::remember($cacheKey, $cacheTtl, function () use ($term) {
+                return $this->connection()
+                    ->table('log')
+                    ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
+                    ->join('cidade', 'cidade.id', '=', 'log.cidade_id')
+                    ->leftJoin('log_complemento', 'log_complemento.cep', '=', 'log.cep')
+                    ->select(
+                        'log.cep',
+                        'log.logradouro',
+                        'bairro.bairro',
+                        'cidade.cidade',
+                        'log.estado',
+                        'log_complemento.complemento',
+                        'log.latitude',
+                        'log.longitude'
+                    )
+                    ->selectRaw("'https://www.google.com/maps/search/' || log.latitude || ',' || log.longitude AS maps")
+                    ->where('log.logradouro', 'LIKE', '%' . $term . '%')
+                    ->limit($this->resultLimit())
+                    ->get()
+                    ->toArray();
+            });
+        } else {
+            $logradouro = $this->connection()
+                ->table('log')
+                ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
+                ->join('cidade', 'cidade.id', '=', 'log.cidade_id')
+                ->leftJoin('log_complemento', 'log_complemento.cep', '=', 'log.cep')
+                ->select(
+                    'log.cep',
+                    'log.logradouro',
+                    'bairro.bairro',
+                    'cidade.cidade',
+                    'log.estado',
+                    'log_complemento.complemento',
+                    'log.latitude',
+                    'log.longitude'
+                )
+                ->selectRaw("'https://www.google.com/maps/search/' || log.latitude || ',' || log.longitude AS maps")
+                ->where('log.logradouro', 'LIKE', '%' . $term . '%')
+                ->limit($this->resultLimit())
+                ->get();
+        }
 
         return response()->json($logradouro);
     }
@@ -76,30 +125,64 @@ class CEPWebserviceController extends Controller
         $longitude = $coordinates['longitude'];
         $radiusKm = (float) config('cepwebservice.search.radius_km', 20);
 
-        $connection = $this->connection();
-        $this->registerSqliteMathFunctions($connection);
+        $cacheEnabled = (bool) config('cepwebservice.cache.enabled', true);
+        $cacheTtl = (int) config('cepwebservice.cache.ttl', 86400);
+        $cacheKey = 'cepwebservice:latlng:' . md5($latitude . ',' . $longitude . ',' . $radiusKm);
 
-        $distanceExpression = '(6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(log.latitude)) * COS(RADIANS(log.longitude) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(log.latitude))))';
+        if ($cacheEnabled) {
+            $results = Cache::remember($cacheKey, $cacheTtl, function () use ($latitude, $longitude, $radiusKm) {
+                $connection = $this->connection();
+                $this->registerSqliteMathFunctions($connection);
 
-        $results = $connection
-            ->table('log')
-            ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
-            ->join('cidade', 'cidade.id', '=', 'log.cidade_id')
-            ->select(
-                'log.cep',
-                'log.logradouro',
-                'bairro.bairro',
-                'cidade.cidade',
-                'log.estado',
-                'log.latitude',
-                'log.longitude'
-            )
-            ->selectRaw("'https://www.google.com/maps/search/' || log.latitude || ',' || log.longitude AS maps")
-            ->selectRaw($distanceExpression . ' AS distancia', [$latitude, $longitude, $latitude])
-            ->havingRaw('distancia < ?', [$radiusKm])
-            ->orderBy('distancia')
-            ->limit($this->resultLimit())
-            ->get();
+                $distanceExpression = '(6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(log.latitude)) * COS(RADIANS(log.longitude) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(log.latitude))))';
+
+                return $connection
+                    ->table('log')
+                    ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
+                    ->join('cidade', 'cidade.id', '=', 'log.cidade_id')
+                    ->select(
+                        'log.cep',
+                        'log.logradouro',
+                        'bairro.bairro',
+                        'cidade.cidade',
+                        'log.estado',
+                        'log.latitude',
+                        'log.longitude'
+                    )
+                    ->selectRaw("'https://www.google.com/maps/search/' || log.latitude || ',' || log.longitude AS maps")
+                    ->selectRaw($distanceExpression . ' AS distancia', [$latitude, $longitude, $latitude])
+                    ->havingRaw('distancia < ?', [$radiusKm])
+                    ->orderBy('distancia')
+                    ->limit($this->resultLimit())
+                    ->get()
+                    ->toArray();
+            });
+        } else {
+            $connection = $this->connection();
+            $this->registerSqliteMathFunctions($connection);
+
+            $distanceExpression = '(6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(log.latitude)) * COS(RADIANS(log.longitude) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(log.latitude))))';
+
+            $results = $connection
+                ->table('log')
+                ->join('bairro', 'bairro.id', '=', 'log.bairro_id')
+                ->join('cidade', 'cidade.id', '=', 'log.cidade_id')
+                ->select(
+                    'log.cep',
+                    'log.logradouro',
+                    'bairro.bairro',
+                    'cidade.cidade',
+                    'log.estado',
+                    'log.latitude',
+                    'log.longitude'
+                )
+                ->selectRaw("'https://www.google.com/maps/search/' || log.latitude || ',' || log.longitude AS maps")
+                ->selectRaw($distanceExpression . ' AS distancia', [$latitude, $longitude, $latitude])
+                ->havingRaw('distancia < ?', [$radiusKm])
+                ->orderBy('distancia')
+                ->limit($this->resultLimit())
+                ->get();
+        }
 
         return response()->json($results);
     }
@@ -110,6 +193,17 @@ class CEPWebserviceController extends Controller
 
         if ($coordinates === null) {
             return $this->validationError('Latitude/longitude inválida. Use o formato "lat,lng".');
+        }
+
+        $cacheEnabled = (bool) config('cepwebservice.cache.enabled', true);
+        $cacheTtl = (int) config('cepwebservice.cache.ttl', 86400);
+        $cacheKey = 'cepwebservice:slatlng:' . md5($coordinates['latitude'] . ',' . $coordinates['longitude']);
+
+        if ($cacheEnabled && Cache::has($cacheKey)) {
+            $cachedData = Cache::get($cacheKey);
+            if ($cachedData !== null) {
+                return response()->json($cachedData);
+            }
         }
 
         $response = Http::acceptJson()
@@ -133,7 +227,12 @@ class CEPWebserviceController extends Controller
             ], 502);
         }
 
-        return response()->json($response->json());
+        $data = $response->json();
+        if ($cacheEnabled) {
+            Cache::put($cacheKey, $data, $cacheTtl);
+        }
+
+        return response()->json($data);
     }
 
     public function glatlng(string $latlng): JsonResponse
@@ -142,6 +241,17 @@ class CEPWebserviceController extends Controller
 
         if ($coordinates === null) {
             return $this->validationError('Latitude/longitude inválida. Use o formato "lat,lng".');
+        }
+
+        $cacheEnabled = (bool) config('cepwebservice.cache.enabled', true);
+        $cacheTtl = (int) config('cepwebservice.cache.ttl', 86400);
+        $cacheKey = 'cepwebservice:glatlng:' . md5($coordinates['latitude'] . ',' . $coordinates['longitude']);
+
+        if ($cacheEnabled && Cache::has($cacheKey)) {
+            $cachedData = Cache::get($cacheKey);
+            if ($cachedData !== null) {
+                return response()->json($cachedData);
+            }
         }
 
         $apiKey = (string) config('cepwebservice.google.api_key');
@@ -216,6 +326,10 @@ class CEPWebserviceController extends Controller
             $payload['updated'] = $updated > 0;
         }
 
+        if ($cacheEnabled) {
+            Cache::put($cacheKey, $payload, $cacheTtl);
+        }
+
         return response()->json($payload);
     }
 
@@ -255,6 +369,10 @@ class CEPWebserviceController extends Controller
 
     private function parseLatLng(string $latlng): ?array
     {
+        if (strlen($latlng) > 50) {
+            return null;
+        }
+
         $parts = array_map('trim', explode(',', $latlng));
 
         if (count($parts) !== 2 || ! is_numeric($parts[0]) || ! is_numeric($parts[1])) {

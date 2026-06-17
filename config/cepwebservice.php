@@ -34,4 +34,19 @@ return [
         'api_key' => env('GOOGLE_MAPS_API_KEY', ''),
         'sync_coordinates' => env('CEPWEBSERVICE_GOOGLE_SYNC_COORDINATES', false),
     ],
+
+    'cache' => [
+        'enabled' => env('CEPWEBSERVICE_CACHE_ENABLED', true),
+        'ttl' => env('CEPWEBSERVICE_CACHE_TTL', 86400), // 1 day in seconds
+    ],
+
+    'rate_limit' => [
+        'enabled' => env('CEPWEBSERVICE_RATE_LIMIT_ENABLED', true),
+        'max_attempts' => env('CEPWEBSERVICE_RATE_LIMIT_MAX_ATTEMPTS', 60),
+        'decay_minutes' => env('CEPWEBSERVICE_RATE_LIMIT_DECAY_MINUTES', 1),
+    ],
+
+    'middleware' => [
+        'web',
+    ],
 ];
